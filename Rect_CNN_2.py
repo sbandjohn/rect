@@ -8,7 +8,6 @@ N_CLASSES = 10
 LEARNING_RATE = 0.001
 BATCH_SIZE = 128
 SKIP_STEP = 1000
-MAX_STEP = 10000
 HEIGHT = 10
 WIDTH = 10
 
@@ -21,7 +20,7 @@ class CNN:
         self.width = width              #图片的宽
         self.global_step = tf.Variable(0, dtype = tf.int32, trainable = False) #每次从checkpoint读档时可以通过此变量读出当前的训练step值
         # self.DROPOUT = 0.95             #训练时默认的dropout
-        self.ckptdir = r'checkpoints\for_rect_simple' #checkpoint目录
+        self.ckptdir = r'checkpoints\for_rect' #checkpoint目录
         #定义X为输入向量，Y为label
         self.X = tf.placeholder(tf.float32, [None, self.height * self.width])
         self.Y = tf.placeholder(tf.float32, [None, self.n_classes])
