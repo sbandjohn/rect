@@ -176,7 +176,7 @@ def main(_):
   cross_entropy = tf.reduce_mean(cross_entropy)
 
   with tf.name_scope('adam_optimizer'):
-    train_step = tf.train.AdamOptimizer(1e-5).minimize(cross_entropy)
+    train_step = tf.train.AdamOptimizer(0.001).minimize(cross_entropy)
 
   with tf.name_scope('accuracy'):
     correct_prediction = tf.equal(tf.argmax(y_conv, 1), tf.argmax(y_, 1))

@@ -15,13 +15,13 @@ noise_num = 0
 def draw_rectangle(a, x1, y1, x2, y2):
 	for i in range(x2-x1+1):
 		for j in range(y2-y1+1):
-			a[x1+i][y1+j] = 1
+			a[x1+i][y1+j] = 10
 
 def make_image(num):
 	image = zero()
 	for i in range(num):
-		r = random.randint(1, 1)
-		c = random.randint(1, 1)
+		r = random.randint(2, 4)
+		c = random.randint(2, 4)
 		x1 = random.randint(0, row-r)
 		y1 = random.randint(0, col-c)
 		x2 = x1 + r - 1
@@ -42,7 +42,7 @@ def make_data(n):
 	images = []
 	labels = []
 	for i in range(n):
-		num = random.randint(0,1)
+		num = random.randint(0,4)
 		image = make_image(num)
 		noise(image)
 		images.append(image)
