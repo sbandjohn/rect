@@ -15,19 +15,42 @@ noise_num = 0
 def draw_rectangle(a, x1, y1, x2, y2):
 	for i in range(x2-x1+1):
 		for j in range(y2-y1+1):
-			a[x1+i][y1+j] = 10
+			a[x1+i][y1+j] = 1
 
-def make_image(num):
+def in_range(a, x0, y0, x3, y3):
+	mr = x3-x0 + 1
+	mc = y3-y0 + 1
+	r = random.randint(2,mr)
+	c = random.randint(2,mc)
+	x1 = x0 + random.randint(0,mr-r)
+	y1 = y0 + random.randint(0,mc-c)
+	x2 = x1+r-1
+	y2 = y1+c-1
+	draw_rectangle(a, x1,y1,x2,y2)
+	
+def make_image(num, case = 1):
 	image = zero()
-	for i in range(num):
-		r = random.randint(5, 5)
-		c = random.randint(5, 5)
-		x1 = random.randint(0, row-r)
-		y1 = random.randint(0, col-c)
-		x2 = x1 + r - 1
-		y2 = y1 + c - 1
-		draw_rectangle(image, x1, y1, x2, y2)
-	return image
+	
+	if case == 1:
+		num = 0
+		for x0, y0, x3, y3 in ((0,0,3,3), (5,0,9, 3), (0,5, 3,9), (5,5, 9,9)):
+			x3 = x0 + 4
+			y3 = y0 + 4
+			if (random.randint(0,1) == 0):
+				num+=1
+				in_range(image, x0,y0, x3,y3)
+		return image, num
+	elif case == 2:
+		for i in range(num):
+			r = random.randint(2, 4)
+			c = random.randint(2, 4)
+			x1 = random.randint(0, row-r)
+			y1 = random.randint(0, col-c)
+			x2 = x1 + r - 1
+			y2 = y1 + c - 1
+			draw_rectangle(image, x1, y1, x2, y2)
+		return image, num
+	return image, num
 
 def noise(a):
 	num = random.randint(0, noise_num)
@@ -43,10 +66,10 @@ def make_data(n):
 	labels = []
 	for i in range(n):
 		num = random.randint(0,4)
-		image = make_image(num)
+		image, label = make_image(num, case = 1)
 		noise(image)
 		images.append(image)
-		labels.append(num)
+		labels.append(label)
 	return images, labels
 
 def print_labels(filename, labels):
