@@ -39,7 +39,7 @@ ckptdir = r'LT_ck'
 
 FLAGS = None
 
-CHANNAL = 4
+CHANNAL = 2
 
 class CNN(object):
   def __init__(self, x):
@@ -83,9 +83,7 @@ def bias_variable(shape):
 def main(_):
   # Import data
   data = rect_data.read_data_sets(one_hot=True)
-  for i in range(10):
-    print(data.test.images[i], data.test.labels[i])
-
+  
   # Create the model
   x = tf.placeholder(tf.float32, [None, 100])
   
@@ -133,7 +131,7 @@ def main(_):
       train_writer.add_graph(tf.get_default_graph())
 
    
-      for i in range(50000):
+      for i in range(20000):
         batch = data.train.next_batch(50)
         if i % 100 == 0:
           train_accuracy = accuracy.eval(feed_dict={
