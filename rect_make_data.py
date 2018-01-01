@@ -17,7 +17,7 @@ def draw_rectangle(a, x1, y1, x2, y2):
 		for j in range(y2-y1+1):
 			a[x1+i][y1+j] = 1
 
-def in_range(a, x0, y0, x3, y3):
+def in_range(a, x0, y0, x3, y3, cut_corner = False):
 	mr = x3-x0 + 1
 	mc = y3-y0 + 1
 	r = random.randint(2,mr)
@@ -27,7 +27,12 @@ def in_range(a, x0, y0, x3, y3):
 	x2 = x1+r-1
 	y2 = y1+c-1
 	draw_rectangle(a, x1,y1,x2,y2)
-	
+	if (cut_corner):
+		a[x1][y1] = 0
+		a[x1][y2] = 0
+		a[x2][y1] = 0
+		a[x2][y2] = 0
+
 def make_image(num, case = 1):
 	image = zero()
 	
@@ -37,6 +42,21 @@ def make_image(num, case = 1):
 			if (random.randint(0,1) == 0):
 				num+=1
 				in_range(image, x0,y0, x3,y3)
+		return image, num
+	elif case == 4:
+		num = 0
+		for x0, y0, x3, y3 in ((0,0,3,3), (5,0,9, 3), (0,5, 3,9), (5,5, 9,9)):
+			if (random.randint(0,1) == 0):
+				num+=1
+				in_range(image, x0, y0, x3, y3, cut_corner = True)
+		return image, num
+	elif case == 3:
+		num = 0
+		for x0, y0, x3, y3 in ((0,0,3,3), (5,0,9, 3), (0,5, 3,9), (5,5, 9,9)):
+			if (random.randint(0,1) == 0):
+				num+=1
+				in_range(image, x0,y0, x3, y3)
+				in_range(image, x0,y0, x3, y3)
 		return image, num
 	elif case == 2:
 		for i in range(num):
@@ -59,13 +79,12 @@ def noise(a):
 		y = random.randint(0, c-1)
 		a[x][y] = 1 - a[x][y]
 
-def make_data(n):
+def make_data(n, case):
 	images = []
 	labels = []
 	for i in range(n):
 		num = random.randint(0,4)
-		image, label = make_image(num, case = 1)
-		noise(image)
+		image, label = make_image(num, case = case)
 		images.append(image)
 		labels.append(label)
 	return images, labels
@@ -90,8 +109,8 @@ def print_images(filename, images):
 		f.writelines(s)
 
 def main():
-	train_images, train_labels = make_data(n_train)
-	test_images, test_labels = make_data(n_test)
+	train_images, train_labels = make_data(n_train, case = 1)
+	test_images, test_labels = make_data(n_test, case = 3)
 	print_labels("rect_train_labels.txt", train_labels)
 	print_images("rect_train_images.txt", train_images)
 	print_labels("rect_test_labels.txt", test_labels)

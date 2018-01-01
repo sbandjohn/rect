@@ -1,0 +1,41 @@
+Data set:
+	images of rectangles
+
+Main problem:
+Does a channel of convolution layer recognize corners?
+
+Other problems:
+what will happen if a second channel is added?
+How does one convolution layer evolve?
+
+Our methods:
+1. observe the weights in the convolution kernel
+2. input a retangle and observe the output of the convolution layer
+3. use some data to fool the network.
+4. use the convolution layer trained in the rectangle data set to recognize corners in other data set
+5. ...
+
+We start with:
+A simple network:
+	A convolution layer with some channels followed by a fully connected layer
+A simple data set:
+	A 10*10 grid, each pixel is 1 if there is a rectangle, 0 otherwise
+	For simplicity, the grid is divided into four regions(left up, right up, left down, right down), each containing one rectangle or not.	
+
+What we got:
+The network doesn't work:
+	When there is at most one rectangle in each region, the network counts retangles correcly.
+	But when we put two rectangles in one region, it fails.
+
+Our guess:
+1. It doesn't recognize rectangle at all.
+2. The network doesn't use corners to count.
+3. It maybe simply finds "1" in each region.
+
+Some other findings:
+The size of the fully connected layer matters:
+	If the layer is too large, most of the work may be done by the fully connected layer instead of the convolution layer.
+	If it's too small, the network fails.
+
+Next step:
+use more complex, more random data to "force" the network to recognize retangles.
