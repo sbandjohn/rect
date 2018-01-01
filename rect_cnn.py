@@ -40,7 +40,11 @@ ckptdir = r'checkpoints/for_rect_3x3'
 FLAGS = None
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 CHANNAL = 2
+=======
+CHANNAL = 4
+>>>>>>> origin/master
 =======
 CHANNAL = 4
 >>>>>>> origin/master
