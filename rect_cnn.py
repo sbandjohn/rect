@@ -50,23 +50,19 @@ class CNN(object):
     self.h_conv1 = tf.nn.relu(conv2d(self.x_image, self.W_conv1) + self.b_conv1)
     self.h_conv1_flat = tf.reshape(self.h_conv1, [-1, 10*10*CHANNAL])
 
-    self.W_fc1 = weight_variable([10 * 10 * CHANNAL, 20])
-    self.b_fc1 = bias_variable([20])
-    self.h_fc1 = tf.nn.relu(tf.matmul(self.h_conv1_flat, self.W_fc1) + self.b_fc1)
-
-    self.W_fc2 = weight_variable([20, 10])
-    self.b_fc2 = bias_variable([10])
-    self.y_conv = tf.matmul(self.h_fc1, self.W_fc2) + self.b_fc2
+    self.W_fc1 = weight_variable([10 * 10 * CHANNAL, 10])
+    self.b_fc1 = bias_variable([10])
+    self.y_conv = tf.matmul(self.h_conv1_flat, self.W_fc1) + self.b_fc1
 
 def conv2d(x, W):
   """conv2d returns a 2d convolution layer with full stride."""
   return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='SAME')
 
 
-def max_pool_2x2(x):
-  """max_pool_2x2 downsamples a feature map by 2X."""
-  return tf.nn.max_pool(x, ksize=[1, 2, 2, 1],
-                        strides=[1, 2, 2, 1], padding='SAME')
+# def max_pool_2x2(x):
+#   """max_pool_2x2 downsamples a feature map by 2X."""
+#   return tf.nn.max_pool(x, ksize=[1, 2, 2, 1],
+#                         strides=[1, 2, 2, 1], padding='SAME')
 
 
 def weight_variable(shape):

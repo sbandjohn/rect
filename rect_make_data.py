@@ -68,6 +68,9 @@ def make_image(num, case = 1):
 			y2 = y1 + c - 1
 			draw_rectangle(image, x1, y1, x2, y2)
 		return image, num
+    # elif case == 5:
+    #     print (haha)
+
 	return image, num
 
 def noise(a):
@@ -109,8 +112,8 @@ def print_images(filename, images):
 		f.writelines(s)
 
 def main():
-	train_images, train_labels = make_data(n_train, case = 1)
-	test_images, test_labels = make_data(n_test, case = 3)
+	train_images, train_labels = make_data(n_train, case = 5)
+	test_images, test_labels = make_data(n_test, case = 5)
 	print_labels("rect_train_labels.txt", train_labels)
 	print_images("rect_train_images.txt", train_images)
 	print_labels("rect_test_labels.txt", test_labels)
