@@ -43,7 +43,7 @@ def dense_to_one_hot(labels_dense, num_classes):
   labels_one_hot.flat[index_offset + labels_dense.ravel()] = 1
   return labels_one_hot
 
-def extract_labels(f, one_hot=False, num_classes=10):
+def extract_labels(f, one_hot=False, num_classes=13):
   n = int(f.readline())
   labels = [ int(line) for line in f.readlines()]
   labels = numpy.array(labels, dtype = numpy.uint8)

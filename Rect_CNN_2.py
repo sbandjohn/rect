@@ -6,7 +6,7 @@ import time
 
 N_CLASSES = 10
 LEARNING_RATE = 0.001
-BATCH_SIZE = 128
+BATCH_SIZE = 100
 SKIP_STEP = 1000
 MAX_STEP = 100000
 HEIGHT = 10
@@ -20,7 +20,7 @@ class CNN:
         self.height = height            #图片的高
         self.width = width              #图片的宽
         self.global_step = tf.Variable(0, dtype = tf.int32, trainable = False) #每次从checkpoint读档时可以通过此变量读出当前的训练step值
-        self.DROPOUT = 0.95             #训练时默认的dropout
+        self.DROPOUT =  1.0         #训练时默认的dropout
         self.ckptdir = r'checkpoints\for_rect' #checkpoint目录
         #定义X为输入向量，Y为label
         self.X = tf.placeholder(tf.float32, [None, self.height * self.width])
@@ -30,21 +30,21 @@ class CNN:
         b_alpha = 0.1   #w_alpha和b_alpha用于初始化。如果不设置的话可能loss函数值初始值过大
         #第一层卷积层和下采样层
         x = tf.reshape(self.X, shape=[-1, self.width, self.height, 1])
-        w_c1 = tf.Variable(w_alpha*tf.random_normal([3, 3, 1, 32]))
-        b_c1 = tf.Variable(b_alpha*tf.random_normal([32]))
+        w_c1 = tf.Variable(w_alpha*tf.random_normal([4, 4, 1, 1]))
+        b_c1 = tf.Variable(b_alpha*tf.random_normal([1]))
         conv1 = tf.nn.relu(tf.nn.bias_add(tf.nn.conv2d(x, w_c1, strides=[1, 1, 1, 1], padding='SAME'), b_c1)) #定义激活函数为relu函数
         # conv1 = tf.nn.max_pool(conv1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME') #下采样层采用最大值采用
         conv1 = tf.nn.dropout(conv1, self.dropout) #设置dropout，训练时只训练self.dropout比例的节点
 
         #全连接层
-        w_d = tf.Variable(w_alpha*tf.random_normal([self.width*self.height*32, 256]))
+        w_d = tf.Variable(w_alpha*tf.random_normal([self.width*self.height*1, 10]))
         #因为卷积层padding='SAME'，所以只有三个下采用层缩小了图片，一共使得长宽都变成原来的1/8
-        b_d = tf.Variable(b_alpha*tf.random_normal([256]))
+        b_d = tf.Variable(b_alpha*tf.random_normal([10]))
         dense = tf.reshape(conv1, [-1, w_d.get_shape().as_list()[0]])
         dense = tf.nn.relu(tf.add(tf.matmul(dense, w_d), b_d))
         dense = tf.nn.dropout(dense, self.dropout)
         #输出层
-        w_out = tf.Variable(w_alpha*tf.random_normal([256, self.n_classes]))
+        w_out = tf.Variable(w_alpha*tf.random_normal([10, self.n_classes]))
         b_out = tf.Variable(b_alpha*tf.random_normal([self.n_classes]))
         self.output = tf.add(tf.matmul(dense, w_out), b_out)
         #定义loss函数和优化函数
@@ -64,26 +64,23 @@ def train_and_test_model(model, batch_size=BATCH_SIZE, skip_step=SKIP_STEP, max_
 
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
-        saver = tf.train.Saver(max_to_keep=5)
+        saver = tf.train.Saver(max_to_keep=3)
         ckpt = tf.train.get_checkpoint_state(os.path.dirname(model.ckptdir + '/checkpoint'))
         if ckpt and ckpt.model_checkpoint_path:     #读取checkpoint，恢复训练状态
-            # print ("found!")
             saver.restore(sess, ckpt.model_checkpoint_path)
 
         initial_step = model.global_step.eval()
         start_time = time.time()
-        total_loss = 0
 
         for index in range(initial_step, max_step):
             X_batch, Y_batch = input.train.next_batch(batch_size)
             _, loss_batch = sess.run([model.optimizer, model.loss],
                                      feed_dict={model.X: X_batch, model.Y: Y_batch, model.dropout: model.DROPOUT})
 
-            Accuracy = sess.run(model.accuracy,
-                                feed_dict={model.X: input.test.images, model.Y: input.test.labels, model.dropout: 1.0})
-            print('loss at step {}: {:5.6f} Accuracy = {}'.format(index + 1, loss_batch, Accuracy))  # 每训练一步都输出loss函数值
-
             if (index + 1) % skip_step == 0:
+                Accuracy = sess.run(model.accuracy,
+                                    feed_dict={model.X: input.test.images, model.Y: input.test.labels, model.dropout: 1.0})
+                print('loss at step {}: {:5.6f} Accuracy = {}'.format(index + 1, loss_batch, Accuracy))  # 每训练一步都输出loss函数值
                 saver.save(sess, model.ckptdir + '/identify-convnet', index)    #保存模型
 
         print("Optimization Finished!")

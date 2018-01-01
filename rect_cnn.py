@@ -35,11 +35,11 @@ import rect_data
 
 import tensorflow as tf
 
-ckptdir = r'LT_ck'
+ckptdir = r'checkpoints/for_rect_3x3'
 
 FLAGS = None
 
-CHANNAL = 1
+CHANNAL = 4
 
 class CNN(object):
   def __init__(self, x):
@@ -50,12 +50,12 @@ class CNN(object):
     self.h_conv1 = tf.nn.relu(conv2d(self.x_image, self.W_conv1) + self.b_conv1)
     self.h_conv1_flat = tf.reshape(self.h_conv1, [-1, 10*10*CHANNAL])
 
-    self.W_fc1 = weight_variable([10 * 10 * CHANNAL, 20])
-    self.b_fc1 = bias_variable([20])
+    self.W_fc1 = weight_variable([10 * 10 * CHANNAL, 10])
+    self.b_fc1 = bias_variable([10])
     self.h_fc1 = tf.nn.relu(tf.matmul(self.h_conv1_flat, self.W_fc1) + self.b_fc1)
 
-    self.W_fc2 = weight_variable([20, 10])
-    self.b_fc2 = bias_variable([10])
+    self.W_fc2 = weight_variable([10, 13])
+    self.b_fc2 = bias_variable([13])
     self.y_conv = tf.matmul(self.h_fc1, self.W_fc2) + self.b_fc2
 
 def conv2d(x, W):
@@ -63,10 +63,10 @@ def conv2d(x, W):
   return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='SAME')
 
 
-def max_pool_2x2(x):
-  """max_pool_2x2 downsamples a feature map by 2X."""
-  return tf.nn.max_pool(x, ksize=[1, 2, 2, 1],
-                        strides=[1, 2, 2, 1], padding='SAME')
+# def max_pool_2x2(x):
+#   """max_pool_2x2 downsamples a feature map by 2X."""
+#   return tf.nn.max_pool(x, ksize=[1, 2, 2, 1],
+#                         strides=[1, 2, 2, 1], padding='SAME')
 
 
 def weight_variable(shape):
@@ -92,7 +92,7 @@ def main(_):
   cnn = CNN(x)
 
   # Define loss and optimizer
-  y_ = tf.placeholder(tf.float32, [None, 10])
+  y_ = tf.placeholder(tf.float32, [None, 13])
   
   y_conv = cnn.y_conv
   
@@ -102,7 +102,7 @@ def main(_):
   cross_entropy = tf.reduce_mean(cross_entropy)
 
   with tf.name_scope('adam_optimizer'):
-    train_step = tf.train.AdamOptimizer(0.001).minimize(cross_entropy)
+    train_step = tf.train.AdamOptimizer(0.0005).minimize(cross_entropy)
 
   with tf.name_scope('accuracy'):
     correct_prediction = tf.equal(tf.argmax(y_conv, 1), tf.argmax(y_, 1))
@@ -133,12 +133,12 @@ def main(_):
       train_writer.add_graph(tf.get_default_graph())
 
    
-      for i in range(50000):
+      for i in range(1000000):
         batch = data.train.next_batch(50)
         if i % 100 == 0:
-          train_accuracy = accuracy.eval(feed_dict={
-          x: batch[0], y_: batch[1]})
-          print('step %d, training accuracy %g' % (i, train_accuracy))
+          train_accuracy, loss = sess.run([accuracy, cross_entropy], feed_dict={
+                            x: batch[0], y_: batch[1]})
+          print('step %d, training accuracy %g loss function %g' % (i, train_accuracy, loss))
         train_step.run(feed_dict={x: batch[0], y_: batch[1]})
 
       print('test accuracy %.6f' % accuracy.eval(feed_dict={
