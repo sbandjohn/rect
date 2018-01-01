@@ -1,4 +1,2 @@
-model_checkpoint_path: "identify-convnet-99999"
-all_model_checkpoint_paths: "identify-convnet-97999"
-all_model_checkpoint_paths: "identify-convnet-98999"
-all_model_checkpoint_paths: "identify-convnet-99999"
+model_checkpoint_path: "identify-convnet-1"
+all_model_checkpoint_paths: "identify-convnet-1"
