@@ -35,26 +35,28 @@ import rect_data
 
 import tensorflow as tf
 
-ckptdir = r'checkpoints/for_rect_3x3'
+ckptdir = r'checkpoints/for_rect_2x2_2*10^6times'
+
+
 
 FLAGS = None
 
-CHANNAL = 4
+CHANNAL = 8
 
 class CNN(object):
   def __init__(self, x):
     self.x_image = tf.reshape(x, [-1, 10, 10, 1])
 
-    self.W_conv1 = weight_variable([3, 3, 1, CHANNAL])
+    self.W_conv1 = weight_variable([2, 2, 1, CHANNAL])
     self.b_conv1 = bias_variable([CHANNAL])
     self.h_conv1 = tf.nn.relu(conv2d(self.x_image, self.W_conv1) + self.b_conv1)
     self.h_conv1_flat = tf.reshape(self.h_conv1, [-1, 10*10*CHANNAL])
 
-    self.W_fc1 = weight_variable([10 * 10 * CHANNAL, 10])
-    self.b_fc1 = bias_variable([10])
+    self.W_fc1 = weight_variable([10 * 10 * CHANNAL, 512])
+    self.b_fc1 = bias_variable([512])
     self.h_fc1 = tf.nn.relu(tf.matmul(self.h_conv1_flat, self.W_fc1) + self.b_fc1)
 
-    self.W_fc2 = weight_variable([10, 13])
+    self.W_fc2 = weight_variable([512, 13])
     self.b_fc2 = bias_variable([13])
     self.y_conv = tf.matmul(self.h_fc1, self.W_fc2) + self.b_fc2
 
@@ -133,7 +135,7 @@ def main(_):
       train_writer.add_graph(tf.get_default_graph())
 
    
-      for i in range(1000000):
+      for i in range(2000000):
         batch = data.train.next_batch(50)
         if i % 100 == 0:
           train_accuracy, loss = sess.run([accuracy, cross_entropy], feed_dict={

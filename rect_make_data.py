@@ -100,7 +100,7 @@ def make_data(n, case):
     images = []
     labels = []
     for i in range(n):
-        num = random.randint(0, 3)
+        num = random.randint(1, 3)
         image, label = make_image(num, case=case)
         images.append(image)
         labels.append(label)
