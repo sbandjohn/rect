@@ -35,7 +35,7 @@ import rect_data
 
 import tensorflow as tf
 
-ckptdir = r'checkpoints/for_rect_2x2_2*10^6times'
+ckptdir = r'checkpoints/rect_2x2_8channals'
 
 
 
@@ -134,23 +134,21 @@ def main(_):
       train_writer = tf.summary.FileWriter(graph_location)
       train_writer.add_graph(tf.get_default_graph())
 
-   
-      for i in range(2000000):
+      saver = tf.train.Saver()
+      for i in range(500000):
         batch = data.train.next_batch(50)
         if i % 100 == 0:
           train_accuracy, loss = sess.run([accuracy, cross_entropy], feed_dict={
                             x: batch[0], y_: batch[1]})
           print('step %d, training accuracy %g loss function %g' % (i, train_accuracy, loss))
         train_step.run(feed_dict={x: batch[0], y_: batch[1]})
+        if i % 50000 == 0:
+          print(sess.run(cnn.W_conv1))
+          print(sess.run(cnn.b_conv1))
+          saver.save(sess, ckptdir + '/identify-convnet', 1)  # 保存模型
 
       print('test accuracy %.6f' % accuracy.eval(feed_dict={
       x: data.test.images, y_: data.test.labels}))
-
-      print(sess.run(cnn.W_conv1))
-      print(sess.run(cnn.b_conv1))  
-	  
-      saver = tf.train.Saver()
-      saver.save(sess, ckptdir + '/identify-convnet', 1)    #保存模型  
 
 if __name__ == '__main__':
   tf.app.run(main=main, argv=sys.argv)
