@@ -55,12 +55,12 @@ class CNN(object):
 
     self.W_conv1 = weight_variable([3, 3, 1, CHANNAL])
     self.b_conv1 = bias_variable([CHANNAL])
-    self.h_conv1 = tf.nn.relu(conv2d(self.x_image, self.W_conv1) + self.b_conv1)
+    self.h_conv1 = tf.nn.sigmoid(conv2d(self.x_image, self.W_conv1) + self.b_conv1)
     self.h_conv1_flat = tf.reshape(self.h_conv1, [-1, 10*10*CHANNAL])
 
     self.W_fc1 = weight_variable([10 * 10 * CHANNAL, 10])
     self.b_fc1 = bias_variable([10])
-    self.h_fc1 = tf.nn.relu(tf.matmul(self.h_conv1_flat, self.W_fc1) + self.b_fc1)
+    self.h_fc1 = tf.nn.sigmoid(tf.matmul(self.h_conv1_flat, self.W_fc1) + self.b_fc1)
 
     self.W_fc2 = weight_variable([10, 13])
     self.b_fc2 = bias_variable([13])
@@ -139,10 +139,10 @@ def main(_):
       train_writer.add_graph(tf.get_default_graph())
 
    
-      for i in range(1000000):
+      for i in range(500000):
         batch = data.train.next_batch(50)
         if i % 100 == 0:
-          train_accuracy, loss = sess.run([accuracy, cross_entropy], feed_dict={
+          train_accuracy, loss = sess.run([accuracy, cross_entropy, cnn.W_conv1], feed_dict={
                             x: batch[0], y_: batch[1]})
           print('step %d, training accuracy %g loss function %g' % (i, train_accuracy, loss))
         train_step.run(feed_dict={x: batch[0], y_: batch[1]})
