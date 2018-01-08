@@ -39,43 +39,41 @@ ckptdir = r'checkpoints/for_rect_3x3'
 
 FLAGS = None
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-CHANNAL = 2
-=======
 CHANNAL = 4
->>>>>>> origin/master
-=======
-CHANNAL = 4
->>>>>>> origin/master
 
 class CNN(object):
   def __init__(self, x):
     self.x_image = tf.reshape(x, [-1, 10, 10, 1])
-
-    self.W_conv1 = weight_variable([3, 3, 1, CHANNAL])
-    self.b_conv1 = bias_variable([CHANNAL])
-    self.h_conv1 = tf.nn.sigmoid(conv2d(self.x_image, self.W_conv1) + self.b_conv1)
+	
+    #self.W_conv1 = weight_variable([2, 2, 1, CHANNAL])
+    self.W_conv1 = fixed_conv()
+    self.b_conv1 = fixed_bias()
+    self.h_conv1 = tf.nn.relu(conv2d(self.x_image, self.W_conv1) + self.b_conv1)
     self.h_conv1_flat = tf.reshape(self.h_conv1, [-1, 10*10*CHANNAL])
 
-    self.W_fc1 = weight_variable([10 * 10 * CHANNAL, 10])
-    self.b_fc1 = bias_variable([10])
-    self.h_fc1 = tf.nn.sigmoid(tf.matmul(self.h_conv1_flat, self.W_fc1) + self.b_fc1)
+    self.W_fc1 = weight_variable([10*10*CHANNAL, 13])
+    self.b_fc1 = bias_variable([13])
+    self.y_conv = tf.matmul(self.h_conv1_flat, self.W_fc1) + self.b_fc1
+    #self.W_fc1 = weight_variable([10 * 10 * CHANNAL, 10])
+    #self.b_fc1 = bias_variable([10])
+    #self.h_fc1 = tf.nn.sigmoid(tf.matmul(self.h_conv1_flat, self.W_fc1) + self.b_fc1)
 
-    self.W_fc2 = weight_variable([10, 13])
-    self.b_fc2 = bias_variable([13])
-    self.y_conv = tf.matmul(self.h_fc1, self.W_fc2) + self.b_fc2
+    #self.W_fc2 = weight_variable([10, 13])
+    #self.b_fc2 = bias_variable([13])
+    #self.y_conv = tf.matmul(self.h_fc1, self.W_fc2) + self.b_fc2
+
+def fixed_conv():
+  M = [ [[1,-1], [-1,-1]], [[-1,1],[-1,-1]], [[-1,-1],[1,-1]], [[-1,-1],[-1,1]] ] 
+  b = [ [ [ [ M[k][i][j] for k in range(CHANNAL)] ] for j in range(2)] for i in range(2) ]
+  return tf.constant(b, dtype = tf.float32)
+
+def fixed_bias():
+  M = [ 0, 0, 0, 0 ]
+  return tf.constant(M, dtype = tf.float32)
 
 def conv2d(x, W):
   """conv2d returns a 2d convolution layer with full stride."""
   return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='SAME')
-
-
-# def max_pool_2x2(x):
-#   """max_pool_2x2 downsamples a feature map by 2X."""
-#   return tf.nn.max_pool(x, ksize=[1, 2, 2, 1],
-#                         strides=[1, 2, 2, 1], padding='SAME')
-
 
 def weight_variable(shape):
   """weight_variable generates a weight variable of a given shape."""
@@ -88,10 +86,18 @@ def bias_variable(shape):
   initial = tf.constant(0.1, shape=shape)
   return tf.Variable(initial)
 
+def show_conv_res(lista):
+  a=lista[0]
+  print("show conv res")
+  for c in range(CHANNAL):
+    print("Channel", c)
+    b = [ [a[i][j][c] for j in range(10) ] for i in range(10)]
+    for l in b: print(l)
+    print()
+
 def main(_):
   # Import data
-  data = rect_data.read_data_sets(one_hot=True)
-  
+ 
   # Create the model
   x = tf.placeholder(tf.float32, [None, 100])
   
@@ -108,7 +114,7 @@ def main(_):
   cross_entropy = tf.reduce_mean(cross_entropy)
 
   with tf.name_scope('adam_optimizer'):
-    train_step = tf.train.AdamOptimizer(0.0005).minimize(cross_entropy)
+    train_step = tf.train.AdamOptimizer(0.0001).minimize(cross_entropy)
 
   with tf.name_scope('accuracy'):
     correct_prediction = tf.equal(tf.argmax(y_conv, 1), tf.argmax(y_, 1))
@@ -117,9 +123,13 @@ def main(_):
 
   saver = tf.train.Saver(max_to_keep=5)
   
+
   with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
+    print(sess.run(cnn.W_conv1))
 	
+    data = rect_data.read_data_sets(one_hot=True)
+  
     if sys.argv[1] == "test":
       print("test only")
       ckpt = tf.train.get_checkpoint_state(os.path.dirname(ckptdir + '/checkpoint'))
@@ -137,13 +147,16 @@ def main(_):
       print('Saving graph to: %s' % graph_location)
       train_writer = tf.summary.FileWriter(graph_location)
       train_writer.add_graph(tf.get_default_graph())
-
-   
-      for i in range(500000):
-        batch = data.train.next_batch(50)
+      
+      sample_image = data.train.images[3]
+      for i in range(100000):
+        batch = data.train.next_batch(100)
         if i % 100 == 0:
           train_accuracy, loss = sess.run([accuracy, cross_entropy], feed_dict={
                             x: batch[0], y_: batch[1]})
+          
+          print(sess.run([cnn.W_conv1, cnn.b_conv1]))
+          show_conv_res(sess.run(cnn.h_conv1, feed_dict={x:[sample_image]}))
           print('step %d, training accuracy %g loss function %g' % (i, train_accuracy, loss))
         train_step.run(feed_dict={x: batch[0], y_: batch[1]})
 
