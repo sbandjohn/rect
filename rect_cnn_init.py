@@ -148,14 +148,17 @@ def main(_):
       train_writer = tf.summary.FileWriter(graph_location)
       train_writer.add_graph(tf.get_default_graph())
       
+      #取一个用来观察的图片  
       sample_image = data.train.images[3]
-      for i in range(20000000):
+	  
+      for i in range(100000):
         batch = data.train.next_batch(100)
         if i % 100 == 0:
           train_accuracy, loss = sess.run([accuracy, cross_entropy], feed_dict={
                             x: batch[0], y_: batch[1]})
           
           print(sess.run([cnn.W_conv1, cnn.b_conv1]))
+          #卷积层的输出
           show_conv_res(sess.run(cnn.h_conv1, feed_dict={x:[sample_image]}))
           print('step %d, training accuracy %g loss function %g' % (i, train_accuracy, loss))
         train_step.run(feed_dict={x: batch[0], y_: batch[1]})

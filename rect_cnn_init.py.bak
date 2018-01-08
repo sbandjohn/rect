@@ -149,7 +149,7 @@ def main(_):
       train_writer.add_graph(tf.get_default_graph())
       
       sample_image = data.train.images[3]
-      for i in range(10000000):
+      for i in range(100000):
         batch = data.train.next_batch(100)
         if i % 100 == 0:
           train_accuracy, loss = sess.run([accuracy, cross_entropy], feed_dict={
