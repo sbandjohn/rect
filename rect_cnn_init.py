@@ -48,19 +48,21 @@ class CNN(object):
     #self.W_conv1 = weight_variable([2, 2, 1, CHANNAL])
     self.W_conv1 = fixed_conv()
     self.b_conv1 = fixed_bias()
+    #self.b_conv1 = bias_variable([CHANNAL])
     self.h_conv1 = tf.nn.relu(conv2d(self.x_image, self.W_conv1) + self.b_conv1)
     self.h_conv1_flat = tf.reshape(self.h_conv1, [-1, 10*10*CHANNAL])
 
-    self.W_fc1 = weight_variable([10*10*CHANNAL, 13])
-    self.b_fc1 = bias_variable([13])
-    self.y_conv = tf.matmul(self.h_conv1_flat, self.W_fc1) + self.b_fc1
-    #self.W_fc1 = weight_variable([10 * 10 * CHANNAL, 10])
-    #self.b_fc1 = bias_variable([10])
-    #self.h_fc1 = tf.nn.sigmoid(tf.matmul(self.h_conv1_flat, self.W_fc1) + self.b_fc1)
+    #self.W_fc1 = weight_variable([10*10*CHANNAL, 13])
+    #self.b_fc1 = bias_variable([13])
+    #self.y_conv = tf.matmul(self.h_conv1_flat, self.W_fc1) + self.b_fc1
+    
+    self.W_fc1 = weight_variable([10 * 10 * CHANNAL, 256])
+    self.b_fc1 = bias_variable([256])
+    self.h_fc1 = tf.nn.relu(tf.matmul(self.h_conv1_flat, self.W_fc1) + self.b_fc1)
 
-    #self.W_fc2 = weight_variable([10, 13])
-    #self.b_fc2 = bias_variable([13])
-    #self.y_conv = tf.matmul(self.h_fc1, self.W_fc2) + self.b_fc2
+    self.W_fc2 = weight_variable([256, 13])
+    self.b_fc2 = bias_variable([13])
+    self.y_conv = tf.matmul(self.h_fc1, self.W_fc2) + self.b_fc2
 
 def fixed_conv():
   M = [ [[1,-1], [-1,-1]], [[-1,1],[-1,-1]], [[-1,-1],[1,-1]], [[-1,-1],[-1,1]] ] 
@@ -125,6 +127,7 @@ def main(_):
   
 
   with tf.Session() as sess:
+  
     sess.run(tf.global_variables_initializer())
     print(sess.run(cnn.W_conv1))
 	
@@ -151,7 +154,7 @@ def main(_):
       #取一个用来观察的图片  
       sample_image = data.train.images[3]
 	  
-      for i in range(100000):
+      for i in range(500000):
         batch = data.train.next_batch(100)
         if i % 100 == 0:
           train_accuracy, loss = sess.run([accuracy, cross_entropy], feed_dict={

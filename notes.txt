@@ -1,4 +1,4 @@
-Data set:
+﻿Data set:
 	images of rectangles
 
 Main problem:
@@ -39,3 +39,78 @@ The size of the fully connected layer matters:
 
 Next step:
 use more complex, more randomized data to "force" the network to recognize retangles.
+
+
+
+角
+
+卷积层设置：
+随机：约90%
+固定：约60%
+
+current question?
+0. What does conv layer learn in corner recognition?
+
+major questions?
+1. In simple network, what does conv layer learn in rectangle recognition?
+2. What happens if more layers/kernels are added?
+
+
+0->1
+method:
+observation & compare
+use the convolution layer trained in the rectangle data set to recognize corners in other data set
+or switch them
+
+1->2
+some similar methods
+
+experiment 1:
+four regions
+
+analysis
+
+0?
+experiment 2:
+(better if illustrated)
+input: 10*10 grid, 0~3 rectangles.
+output: number of corners.
+network: input -> conv layer with several channels -> fully connected -> output
+result: 100% training, 90% test.
+
+analysis
+(better if illustrated)
+conv kernels: in each kernel, all weights are similar
+
+output of conv layer: recognize the region of rectangles
+counting is done by fully connected layer
+
+the kernel doesn't recognize corner
+
+experiment 3:
+same data set as experiment 2
+delete convolution layer
+result: 90% traing, 87% test
+
+analysis
+Convolution layer improves accuracy and speed up the learning process.
+
+experiment 4:
+same data as experiment 2 and 3
+set the convolution layer to be corner extractors
+result: 100% training and testing accuracy after 50,000 times
+
+question:
+Why can not a randomly initialized convolution layer evolve into corner extractors? 
+
+
+next step:
+two directions:
+1. train the network to recognize four kinds of corners separately
+2. add another convolution layer
+3. fully connected fixed, train kernel
+
+
+thinking:
+network may think totally differnetly from us
+train differently
